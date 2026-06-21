@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+# Property Management System - Frontend Client
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This directory contains the user interface and client-side logic for the Property Management System. Built using **React.js (v18)** and styled with **Tailwind CSS / Material Tailwind**, it provides a modern, responsive portal for seekers, vendors, and admins.
 
-## Available Scripts
+## Overview
+The frontend client interfaces with the backend REST API to deliver three independent user experiences. It handles visual navigation, client-side route protection based on user roles, interactive analytics charts, and form validations for property and user listing creations.
 
-In the project directory, you can run:
+## Features
+- **Responsive Navigation**: Adaptive Navbars, Sidebars, and layout dashboards for Admin, Vendor, and Seeker views.
+- **Protected Routes**: Custom routing logic wrapping React Router to restrict access to pages based on JWT roles.
+- **Analytics Visualization**: Interactive line and bar charts using React ApexCharts for administrators to monitor user registrations and bookings.
+- **Dynamic Forms**: Listing uploading forms that support multi-part file uploads (images) and validation.
+- **Toast Notifications**: Non-intrusive alert popups using React Hot Toast to confirm user actions or show errors.
 
-### `npm start`
+## Technologies Used
+- **React.js (v18)** - Core frontend library
+- **React Router DOM (v6)** - Client routing
+- **Tailwind CSS & Material Tailwind React** - Styling & components
+- **React ApexCharts** - Visual dashboard graphs
+- **Axios** - HTTP client
+- **React Hot Toast** - Client-side alert notifications
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Project Structure
+```text
+src/
+├── apiServices/          # Axios wrappers that handle authorization headers and requests
+├── auth/                 # Login, User Signup, and Vendor Signup pages
+├── components/           # Reusable UI elements (Navbars, Sidebars, Footers)
+├── layouts/              # Main layout wrappers for dashboard routing
+├── views/                # Role-specific views and control dashboards:
+│   ├── admin/            # Admin controls (category setup, vendor verification, stats)
+│   ├── users/            # Seeker views (listings browser, booking request, wishlist)
+│   └── vendors/          # Vendor views (property forms, booking tables)
+└── config.json           # Stores backend server URL configuration
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation & Setup
+1. Open a terminal in this directory:
+   ```bash
+   cd property-management-frontend-main
+   ```
+2. Install the node dependencies:
+   ```bash
+   npm install
+   ```
+3. Verify connection configuration in `src/config.json`:
+   ```json
+   {
+     "url": "http://localhost:9291"
+   }
+   ```
+4. Start the development server:
+   ```bash
+   npm start
+   ```
 
-### `npm test`
+## Usage
+- Run the backend server first before booting the React client.
+- When running locally, visit `http://localhost:3000` to view the site.
+- Create user accounts or vendor profiles to explore distinct features.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Future Improvements
+- Implement responsive dark mode support.
+- Cache loaded property listings using React Query to optimize performance.
+- Add client-side internationalization (i18n) for multi-language support.
 
-### `npm run build`
+## Author
+**Dhanya K**
+- GitHub: [@Dhanya562004](https://github.com/Dhanya562004)
+- Email: [kdhanya762@gmail.com](mailto:kdhanya762@gmail.com)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## License
+Distributed under the ISC License.
