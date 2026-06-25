@@ -1,80 +1,103 @@
-# Property Management System - Backend API
-
-This directory contains the Node.js and Express.js REST API that powers the Property Management Hub. It handles database operations, authentication routes, automated notification mailers, and integrates with AWS S3 for media uploads.
+# Property Management Website - Backend API
 
 ## Overview
-The backend server functions as a JSON API, exposing endpoints for user accounts, vendor approvals, property listings, search filters, comments, and booking aggregations. It validates all incoming requests using JWT middleware and stores data inside a MongoDB database.
+This is the backend API service for the Property Management platform. It acts as the core brain of the application, managing user accounts, authentication sessions, database records, email alerts, and property information. I built this backend to provide a secure and structured RESTful API layer that our frontend client can communicate with.
+
+---
 
 ## Features
-- **RESTful Endpoints**: Dedicated modules for authentication, users, property CRUD, reviews, and booking transactions.
-- **Role-Based Middlewares**: Intercepts requests to enforce permissions depending on user role (Admin, Vendor, Seeker).
-- **Secure Authentication**: Uses JSON Web Tokens (JWT) for session management and Bcrypt to securely hash passwords.
-- **S3 Media Storage**: Seamless upload handlers routing images directly to an AWS S3 bucket.
-- **Automated Mailer**: Connects to an SMTP server using Nodemailer to send confirmations upon booking creation.
+Here are the main features implemented in this backend service:
+* **RESTful Endpoints:** Dedicated endpoints for login, user/vendor registration, property listings, and bookings.
+* **Role-Based Guards:** API requests are checked using authorization guards to ensure only validated Seekers, Vendors, or Admins can access their respective features.
+* **Database Management:** Handles entity mappings and structured relationships between users, listings, categories, and bookings.
+* **Automated Notification Mailer:** Built-in mail service that dispatches email confirmations whenever a booking status changes or an inquiry is sent.
+* **Secure Sessions:** Utilizes JSON Web Token (JWT) signing and verification to maintain stateless authentication.
+
+---
 
 ## Technologies Used
-- **Runtime**: Node.js
-- **Server Framework**: Express.js
-- **Database**: MongoDB (via Mongoose ODM)
-- **File Handling**: Multer
-- **Cloud Integration**: AWS SDK (v2)
-- **Security**: Bcrypt, JSON Web Tokens (JWT), CORS
-- **Email Service**: Nodemailer
+* **Java & Spring Boot:** The framework used to compile, run, and host the REST API service.
+* **MySQL:** The relational database system used to store and query the system data.
+* **Hibernate / Spring Data JPA:** Used as the Object-Relational Mapping (ORM) framework to interact with MySQL cleanly.
+* **Java Mail Sender:** Integrated to handle transactional emails.
+* **JWT (JSON Web Token):** Standard library for generating secure tokens for role authentication.
+
+---
 
 ## Project Structure
+Here is how the backend project files are structured:
 ```text
-src/
-├── controllers/          # Controllers for authentication, admin tools, properties, etc.
-├── helpers/              # Helper utilities (AWS S3 config, Nodemailer setup)
-├── middleware/           # Authentication validation and upload handlers
-└── models/               # Mongoose schemas (Users, Properties, Bookings, Categories)
+property-mangement-backend-main/
+│
+├── Project.postman_collection.json    # Reference Postman collection for API endpoints
+├── pom.xml                            # Maven project configuration file
+└── src/
+    └── main/
+        ├── java/com/property/
+        │   ├── controllers/           # REST endpoints (auth, properties, bookings)
+        │   ├── models/                # Entity models (User, Property, Booking, Category)
+        │   ├── repositories/          # Spring Data JPA repositories
+        │   └── services/              # Business logic (auth, email, property validation)
+        └── resources/
+            └── application.properties # Spring configuration (DB credentials, server port)
 ```
 
+---
+
 ## Installation & Setup
-1. Open a terminal in this directory:
+Follow these steps to set up the backend locally:
+
+1. **Pre-requisites:** Make sure you have **Java JDK 17** (or newer) and **MySQL Server** installed.
+2. **Database Configuration:**
+   * Create a database named `property_db` in your MySQL database.
+   * Open `src/main/resources/application.properties` and add your database settings:
+     ```properties
+     spring.datasource.url=jdbc:mysql://localhost:3306/property_db
+     spring.datasource.username=your_mysql_username
+     spring.datasource.password=your_mysql_password
+     spring.jpa.hibernate.ddl-auto=update
+     ```
+3. **Run the API:**
+   Run the application from your IDE or use Maven in the terminal:
    ```bash
-   cd property-mangement-backend-main
+   ./mvnw spring-boot:run
    ```
-2. Install the node packages:
-   ```bash
-   npm install
-   ```
-3. Set up the `.env` file from the template:
-   ```bash
-   cp .env.template .env
-   ```
-4. Update the newly created `.env` file with your Mongo, JWT, AWS S3, and SMTP credentials:
-   ```env
-   PORT=9291
-   DATABASE_URI=your_mongodb_connection_uri
-   TOKENKEY=your_jwt_secret_token
-   AWS_BUCKET_NAME=your_s3_bucket_name
-   AWS_ACCESS_KEY_ID=your_aws_access_key_id
-   AWS_ACCESS_KEY_SECRET=your_aws_secret_access_key
-   AWS_URL=your_s3_bucket_base_url
-   USER=your_smtp_username
-   PASS=your_smtp_password
-   EMAIL=sender_email_address
-   ```
-5. Start the server:
-   ```bash
-   npm start
-   ```
+   The backend server will launch and listen for requests.
+
+---
 
 ## Usage
-- The server starts on `http://localhost:9291` by default.
-- Integrate with the frontend React client or test endpoints directly using Postman.
-- A Postman collection is included in this folder as `Project.postman_collection.json` for reference.
+Once the server is running, you can test the API endpoints using the included Postman collection:
+* Import `Project.postman_collection.json` into Postman.
+* Register a user with `POST /api/auth/register`.
+* Log in with `POST /api/auth/login` to obtain a JWT token.
+* Include the token in the `Authorization` header for protected calls, like booking a property or adding listings.
+
+---
 
 ## Future Improvements
-- Refactor to TypeScript for stronger type-safety.
-- Write integration tests using Supertest and Jest.
-- Set up Winston or Morgan logging library to capture runtime application errors.
+* **Secure Payment Integration:** Adding Stripe API controllers on the backend to verify and process booking payments.
+* **WebSockets for Chat:** Setting up a Socket handler to manage real-time text communications between tenants and landlords.
+* **Caching with Redis:** Adding a cache layer for property listings to speed up search queries and reduce database load.
+
+---
+
+## Challenges & Learning
+* **Relational Mapping:** Setting up Hibernate annotations (like `@ManyToOne` and `@OneToMany`) and resolving circular dependencies during JSON serialization was a challenge that taught me a lot about relational data modeling.
+* **Custom Security Configurations:** Configuring Spring Security to guard specific endpoints while leaving public listings open was a great learning experience.
+
+---
+
+## Contributing
+1. Fork this repository.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+---
 
 ## Author
-**Dhanya K**
-- GitHub: [@Dhanya562004](https://github.com/Dhanya562004)
-- Email: [kdhanya762@gmail.com](mailto:kdhanya762@gmail.com)
-
-## License
-Distributed under the ISC License.
+* **Developer:** Dhanya K
+* **GitHub:** [@Dhanya562004](https://github.com/Dhanya562004)
+* **Email:** [kdhanya762@gmail.com](mailto:kdhanya762@gmail.com)
