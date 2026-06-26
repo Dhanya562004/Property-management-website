@@ -18,9 +18,22 @@ Here is what the application can do:
 
 ## Technologies Used
 For this project, I chose a modern full-stack web development suite:
-* **Java & Spring Boot:** The backend API is built using Spring Boot. It handles all our REST endpoints, user authentication, role authorizations, and database transactions.
-* **MySQL:** I used MySQL as our main relational database. It stores structured tables for users, properties, bookings, and categories, maintaining relationship integrity.
-* **HTML & CSS & JavaScript:** The frontend user interface is built using standard static HTML5, CSS3, and Vanilla JavaScript, styled with Tailwind CSS via CDN, ensuring it is lightweight, fast, and runs directly in the browser without node_modules.
+
+### Frontend Client
+* **HTML5 & CSS3:** Standard semantic markup and design layout.
+* **Tailwind CSS (via CDN):** Modern styling and responsive components.
+* **Vanilla JavaScript (ES6+):** Script engine handling DOM manipulation, event routing, session status, and page checks.
+* **Fetch API:** Asynchronous API fetch client with middleware attachment.
+* **ApexCharts (via CDN):** Line and bar chart visualizations for platform analytics.
+
+### Backend API & Database
+* **Java (JDK 17) & Spring Boot (v3.2.5):** Platform architecture core executing controllers, service interceptors, and data management.
+* **Spring Data JPA & Hibernate:** Object-Relational Mapping (ORM) to automatically coordinate schema updates.
+* **MySQL:** Main relational database storing profiles, categories, bookings, properties, and review data.
+* **jjwt (JSON Web Token for Java):** Lightweight package compiling secure session payload access tokens.
+* **Spring Security Crypto:** Encrypts user passwords using secure BCrypt hashing.
+* **Spring Boot Starter Mail:** Dispatches booking confirmation notifications via SMTP mailers.
+* **Maven:** Builds, compiles, and packages application dependencies.
 
 ---
 
