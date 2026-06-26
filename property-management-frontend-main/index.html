@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Management Platform</title>
+    <meta name="description" content="Securely browse, rent, and list properties on our premier Property Management Platform.">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 flex flex-col min-h-screen">
+
+    <!-- Header / Navigation -->
+    <header class="glass-panel sticky top-0 z-40 w-full border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <span class="text-2xl">🏡</span>
+                <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">PropManager</span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-8 font-semibold text-slate-600">
+                <a href="#features" class="hover:text-blue-600 transition-colors">Features</a>
+                <a href="#roles" class="hover:text-blue-600 transition-colors">Portals</a>
+                <a href="#about" class="hover:text-blue-600 transition-colors">About Us</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <a href="login.html" class="text-sm font-bold text-slate-700 hover:text-blue-600 px-4 py-2 rounded-lg hover:bg-slate-100 transition-all">Sign In</a>
+                <a href="register-user.html" class="gradient-primary text-sm font-bold text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-95 transition-all">Get Started</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-grow">
+        <section class="relative py-20 lg:py-28 overflow-hidden bg-slate-900 text-white">
+            <!-- Background mesh -->
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/30 via-slate-900 to-slate-950"></div>
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                <div class="flex flex-col gap-6 max-w-xl">
+                    <span class="w-fit px-3 py-1 text-xs font-semibold tracking-wider text-blue-400 uppercase bg-blue-500/10 border border-blue-500/20 rounded-full">Secure Rental Marketplace</span>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight">
+                        Find and Manage Your <span class="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Dream Property</span>
+                    </h1>
+                    <p class="text-slate-400 text-lg leading-relaxed">
+                        A single unified platform for seekers to book, vendors to list, and administrators to verify properties. No spreadsheets. No hassles.
+                    </p>
+                    <div class="flex flex-wrap gap-4 mt-4">
+                        <a href="register-user.html" class="gradient-primary px-7 py-4 rounded-xl text-white font-bold shadow-lg shadow-blue-500/25 hover:scale-[1.02] active:scale-95 transition-all">Browse Properties</a>
+                        <a href="register-vendor.html" class="px-7 py-4 rounded-xl text-slate-200 border border-slate-700 hover:border-slate-500 bg-slate-800/40 hover:bg-slate-800 transition-all font-bold">List as Vendor</a>
+                    </div>
+                </div>
+
+                <div class="relative w-full aspect-video lg:aspect-square bg-slate-800 rounded-3xl overflow-hidden border border-slate-700 shadow-2xl flex items-center justify-center">
+                    <!-- Placeholder visual graphics -->
+                    <div class="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-600 via-transparent to-transparent"></div>
+                    <div class="z-10 text-center p-8">
+                        <span class="text-7xl block mb-4">🏢</span>
+                        <h3 class="font-extrabold text-2xl mb-2">Verified Real Estate Network</h3>
+                        <p class="text-slate-400 max-w-md text-sm">
+                            Approved landlords can publish property listings, upload images directly, and receive online bookings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+                <span class="text-blue-600 font-bold text-sm uppercase tracking-wider">Features</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Simplify your real estate operations</h2>
+                <p class="text-slate-500 text-lg">We provide three separate dedicated dashboards with customized tools for each platform role.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+                    <span class="text-4xl bg-blue-50 w-fit p-3 rounded-2xl text-blue-600">🔍</span>
+                    <h3 class="font-bold text-xl text-slate-800">Advanced Search & Filters</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Seekers can filter properties by category, subcategory, status (Ready, Upcoming, Sold, Rented), location, and amenities like lift or parking.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+                    <span class="text-4xl bg-purple-50 w-fit p-3 rounded-2xl text-purple-600">🔔</span>
+                    <h3 class="font-bold text-xl text-slate-800">Automated Mail Alerts</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Automatic email notifications are sent immediately to users when bookings are placed, accepted, or when a wishlisted property goes on sale.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4">
+                    <span class="text-4xl bg-emerald-50 w-fit p-3 rounded-2xl text-emerald-600">🛡️</span>
+                    <h3 class="font-bold text-xl text-slate-800">Role-Based Guards</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Security filters restrict routes. Vendors must be verified and approved by the platform administrator before publishing property listings.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portals Section -->
+        <section id="roles" class="py-20 bg-slate-100 border-t border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+                    <span class="text-blue-600 font-bold text-sm uppercase tracking-wider">Access Portals</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Choose your role to get started</h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Admin -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between hover-scale">
+                        <div class="flex flex-col gap-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-red-500 bg-red-50 px-3 py-1 rounded-full w-fit">Platform Moderator</span>
+                            <h3 class="font-extrabold text-2xl text-slate-900">Administrator</h3>
+                            <p class="text-slate-500 text-sm">
+                                Approve vendor registration requests, manage database categories/subcategories, view statistics, and post remarks/questions.
+                            </p>
+                        </div>
+                        <a href="login.html" class="mt-8 text-center text-sm font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/50 py-3 rounded-xl transition-all">Access Admin Portal &rarr;</a>
+                    </div>
+
+                    <!-- Vendor -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between hover-scale">
+                        <div class="flex flex-col gap-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-blue-500 bg-blue-50 px-3 py-1 rounded-full w-fit">Property Owner</span>
+                            <h3 class="font-extrabold text-2xl text-slate-900">Vendor</h3>
+                            <p class="text-slate-500 text-sm">
+                                List apartments, villas or plots, upload images, manage inquiries, accept/reject booking requests, and reply to admin inquiries.
+                            </p>
+                        </div>
+                        <a href="register-vendor.html" class="mt-8 text-center text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100/50 py-3 rounded-xl transition-all">Access Vendor Portal &rarr;</a>
+                    </div>
+
+                    <!-- Seeker -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between hover-scale">
+                        <div class="flex flex-col gap-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full w-fit">Tenant / Buyer</span>
+                            <h3 class="font-extrabold text-2xl text-slate-900">Seeker</h3>
+                            <p class="text-slate-500 text-sm">
+                                Search properties by locality and price, save properties to wishlist, book ready-to-buy homes, and track your booking status.
+                            </p>
+                        </div>
+                        <a href="register-user.html" class="mt-8 text-center text-sm font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100/50 py-3 rounded-xl transition-all">Access Seeker Portal &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🏡</span>
+                <span class="font-bold text-white text-lg">PropManager</span>
+            </div>
+            <p class="text-sm">&copy; 2026 Property Management Platform. All rights reserved.</p>
+            <div class="flex gap-6 text-sm">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

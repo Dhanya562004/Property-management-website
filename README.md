@@ -20,8 +20,7 @@ Here is what the application can do:
 For this project, I chose a modern full-stack web development suite:
 * **Java & Spring Boot:** The backend API is built using Spring Boot. It handles all our REST endpoints, user authentication, role authorizations, and database transactions.
 * **MySQL:** I used MySQL as our main relational database. It stores structured tables for users, properties, bookings, and categories, maintaining relationship integrity.
-* **HTML & CSS:** The front-end user interface is designed using HTML and clean, responsive CSS (along with Tailwind styling) to make the experience smooth and modern.
-* **JavaScript (React):** The interactive client application is built with React.js, making the UI snappy and fast by handling states efficiently.
+* **HTML & CSS & JavaScript:** The frontend user interface is built using standard static HTML5, CSS3, and Vanilla JavaScript, styled with Tailwind CSS via CDN, ensuring it is lightweight, fast, and runs directly in the browser without node_modules.
 
 ---
 
@@ -30,12 +29,13 @@ Here is how the repository is organized:
 ```text
 Property-Management-Website/
 │
-├── property-management-frontend-main/     # React.js client application (HTML, CSS, JS)
-│   ├── public/                            # Static assets and index.html
-│   └── src/                               # React source code (components, layouts, views)
+├── property-management-frontend-main/     # Static Frontend application (HTML, CSS, JS)
+│   ├── assets/                            # Global stylesheets (styles.css) and script logic (app.js)
+│   └── *.html                             # HTML pages for all portals (Index, Login, Admin, Vendor, User)
 │
 └── property-mangement-backend-main/      # Spring Boot backend API application (Java)
     ├── src/                               # Java source files (controllers, services, repositories)
+    ├── seed.sql                           # Database seeding file containing initial admin and categories
     └── pom.xml                            # Maven configuration file for dependencies
 ```
 
@@ -47,40 +47,30 @@ To run this project locally, follow these steps:
 ### Backend Setup (Spring Boot)
 1. Ensure you have **Java JDK 17** (or newer) and **MySQL Server** installed.
 2. Create a database named `property_db` in your MySQL server.
-3. Open the backend project and locate the `src/main/resources/application.properties` (or `application.yml`) file. Configure it with your database credentials:
+3. Open the backend project and locate the `src/main/resources/application.properties` file. Configure it with your database credentials:
    ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/property_db
+   spring.datasource.url=jdbc:mysql://localhost:3306/property_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
    spring.datasource.username=your_mysql_username
    spring.datasource.password=your_mysql_password
    spring.jpa.hibernate.ddl-auto=update
    ```
-4. Run the backend application:
+4. Seed the database by executing the SQL statements inside `seed.sql` on your MySQL server to create the default categories and the default administrator user (`admin@property.com`, password `Admin@123`).
+5. Run the backend application:
    ```bash
-   ./mvnw spring-boot:run
+   mvn spring-boot:run
    ```
 
-### Frontend Setup (React)
-1. Ensure you have **Node.js** installed.
-2. Navigate to the frontend directory:
-   ```bash
-   cd property-management-frontend-main
-   ```
-3. Install the dependencies:
-   ```bash
-   npm install
-   ```
-4. Start the React development server:
-   ```bash
-   npm start
-   ```
-5. Open your browser and go to `http://localhost:3000` to interact with the application.
+### Frontend Setup
+1. No Node.js installation is required for the frontend.
+2. Simply double-click `property-management-frontend-main/index.html` to open it in your browser, or run a lightweight local HTTP server (such as the VS Code Live Server extension, or `npx serve ./`).
+3. The frontend is pre-configured to communicate with the local Spring Boot API server running at `http://localhost:9291`.
 
 ---
 
 ## Usage
 * **As a Seeker:** Register an account, browse different property categories, use filters to search, and submit booking requests or reviews.
 * **As a Vendor:** Sign up as a property owner. Once approved by the administrator, you can list your properties, upload images, and manage incoming inquiries.
-* **As an Admin:** Log in with admin credentials to create categories, approve pending vendor applications, and view platform usage statistics.
+* **As an Admin:** Log in with admin credentials (`admin@property.com` / `Admin@123`) to create categories, approve pending vendor applications, and view platform usage statistics.
 
 ---
 
@@ -96,8 +86,8 @@ Here are some features I plan to work on next:
 ## Challenges & Learning
 Developing this project was a huge learning curve for me. Here are the key things I learned and solved:
 * **Database Relationships:** Designing the database schema in MySQL and setting up correct Hibernate relationships (One-to-Many/Many-to-Many) between users, properties, and bookings taught me a lot about relational data modeling.
-* **Role-Based Security:** Implementing secure routing and validating users' roles on both the React frontend and Spring Boot backend was tricky, but I got a good grasp of how JWTs are parsed and checked.
-* **Component Reusability:** Learning how to structure components in React so they could be shared across Seeker, Vendor, and Admin dashboards saved me a lot of duplicate code.
+* **Role-Based Security:** Implementing secure routing and validating users' roles on both the Vanilla JS frontend and Spring Boot backend was tricky, but I got a good grasp of how JWTs are parsed and checked.
+* **Vanilla JS Refactoring:** Refactoring the frontend from React to pure HTML/CSS/Vanilla JS taught me how to manage DOM events, write custom router guards, and establish clean API fetch communication dynamically.
 
 ---
 

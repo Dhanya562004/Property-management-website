@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Property - PropManager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 flex min-h-screen text-slate-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-400 flex flex-col justify-between border-r border-slate-800">
+        <div class="flex flex-col">
+            <div class="h-16 flex items-center px-6 gap-2 border-b border-slate-800">
+                <span class="text-xl">🏡</span>
+                <span class="font-extrabold text-white text-lg tracking-tight">PropManager</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1 p-4">
+                <a href="vendor-dashboard.html" class="nav-link-active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all">
+                    <span>🏢</span> My Properties
+                </a>
+                <a href="vendor-bookings.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>📅</span> Inquiries / Bookings
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 flex flex-col gap-2">
+            <div class="px-4 py-2 flex flex-col">
+                <span id="user-name" class="font-bold text-white text-sm">Landlord</span>
+                <span class="text-xs text-slate-500">Property Vendor</span>
+            </div>
+            <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                <span>🚪</span> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow flex flex-col min-h-screen">
+        <!-- Top Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Publish Listing</h2>
+            <div id="loading-spinner" class="spinner hidden"></div>
+        </header>
+
+        <main class="flex-grow p-8 max-w-4xl">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl p-8">
+                <form id="add-property-form" class="flex flex-col gap-6">
+                    <!-- Section: Category -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="category-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Category</label>
+                            <select id="category-select" required onchange="onCategoryChange()" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white text-sm font-medium text-slate-700">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="subcategory-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Subcategory</label>
+                            <select id="subcategory-select" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white text-sm font-medium text-slate-700">
+                                <option value="">Select Subcategory</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Section: Details -->
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="property_name" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Property Name</label>
+                            <input type="text" id="property_name" required placeholder="Luxury Apartment" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="city" class="text-xs font-bold text-slate-700 uppercase tracking-wider">City</label>
+                            <input type="text" id="city" required placeholder="Bangalore" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="locality" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Locality</label>
+                            <input type="text" id="locality" required placeholder="Indiranagar" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="price" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Price (INR)</label>
+                            <input type="number" id="price" required placeholder="50000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="deposit" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Security Deposit (INR)</label>
+                            <input type="number" id="deposit" required placeholder="150000" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="age" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Age of Property</label>
+                            <input type="text" id="age" required placeholder="2 Years" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="bedrooms" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Bedrooms</label>
+                            <input type="number" id="bedrooms" required placeholder="2" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="balconies" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Balconies</label>
+                            <input type="number" id="balconies" required placeholder="1" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="bathrooms" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Bathrooms</label>
+                            <input type="number" id="bathrooms" required placeholder="2" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="flooring" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Flooring Type</label>
+                            <input type="text" id="flooring" required placeholder="Marble" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="lift-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Lift Available</label>
+                            <select id="lift-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white text-sm">
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="parking-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Parking Available</label>
+                            <select id="parking-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white text-sm">
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="pay-on-month-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Pay-On-Month Option</label>
+                            <select id="pay-on-month-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white text-sm">
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="prop-status-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Listing Status</label>
+                            <select id="prop-status-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white text-sm">
+                                <option value="1">Ready to Buy</option>
+                                <option value="2">Upcoming</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Images and Description -->
+                    <div class="flex flex-col gap-1.5">
+                        <label for="description" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Property Description</label>
+                        <textarea id="description" required rows="4" placeholder="Describe key highlights, amenities, and details..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm"></textarea>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="images" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Property Images (Select Multiple, Max 5)</label>
+                        <input type="file" id="images" required multiple accept="image/*" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm">
+                    </div>
+
+                    <button type="submit" class="gradient-primary text-sm font-bold text-white py-3.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:scale-[1.01] active:scale-95 transition-all mt-4 flex items-center justify-center gap-2">
+                        <span>Publish Property Listing</span>
+                        <span id="submit-loader" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- App JS -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        if (guardPage([ROLE_VENDOR])) {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-name').innerText = user.name;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                fetchCategories();
+            });
+        }
+
+        async function fetchCategories() {
+            const spinner = document.getElementById('loading-spinner');
+            const select = document.getElementById('category-select');
+            
+            spinner.classList.remove('hidden');
+            try {
+                const res = await fetchApi('/api/category/manage/list');
+                if (res && res.responseCode === 200) {
+                    res.responseData.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.innerText = c.name;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function onCategoryChange() {
+            const categoryId = document.getElementById('category-select').value;
+            const subselect = document.getElementById('subcategory-select');
+            
+            subselect.innerHTML = '<option value="">Select Subcategory</option>';
+            if (!categoryId) return;
+
+            try {
+                const res = await fetchApi(`/api/subcategory/manage/list?category_id=${categoryId}`);
+                if (res && res.responseCode === 200 && res.responseData.length > 0) {
+                    res.responseData[0].subCategories.forEach(sc => {
+                        const opt = document.createElement('option');
+                        opt.value = sc._id;
+                        opt.innerText = sc.name;
+                        subselect.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('add-property-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loader = document.getElementById('submit-loader');
+
+            loader.classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('property_name', document.getElementById('property_name').value);
+            formData.append('city', document.getElementById('city').value);
+            formData.append('locality', document.getElementById('locality').value);
+            formData.append('price', document.getElementById('price').value);
+            formData.append('deposit', document.getElementById('deposit').value);
+            formData.append('age', document.getElementById('age').value);
+            formData.append('bedrooms', document.getElementById('bedrooms').value);
+            formData.append('balconies', document.getElementById('balconies').value);
+            formData.append('bathrooms', document.getElementById('bathrooms').value);
+            formData.append('flooring', document.getElementById('flooring').value);
+            formData.append('lift', document.getElementById('lift-select').value);
+            formData.append('parking', document.getElementById('parking-select').value);
+            formData.append('pay_on_month', document.getElementById('pay-on-month-select').value);
+            formData.append('prop_status', document.getElementById('prop-status-select').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('category', document.getElementById('category-select').value);
+            formData.append('subcategory', document.getElementById('subcategory-select').value);
+
+            const fileInput = document.getElementById('images');
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('images', fileInput.files[i]);
+            }
+
+            try {
+                // Post form-data
+                const res = await fetchApi('/api/properties/manage/post', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast('Property listing published successfully!');
+                    setTimeout(() => {
+                        window.location.href = 'vendor-dashboard.html';
+                    }, 1500);
+                } else {
+                    showToast(res ? res.responseMessage : 'Failed to publish listing.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

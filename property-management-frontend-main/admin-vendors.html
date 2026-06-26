@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Requests - PropManager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 flex min-h-screen text-slate-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-400 flex flex-col justify-between border-r border-slate-800">
+        <div class="flex flex-col">
+            <div class="h-16 flex items-center px-6 gap-2 border-b border-slate-800">
+                <span class="text-xl">🏡</span>
+                <span class="font-extrabold text-white text-lg tracking-tight">PropManager</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1 p-4">
+                <a href="admin-dashboard.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="admin-vendors.html" class="nav-link-active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all">
+                    <span>👥</span> Vendor Requests
+                </a>
+                <a href="admin-categories.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>🏷️</span> Categories
+                </a>
+                <a href="admin-properties.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>🏢</span> Properties
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 flex flex-col gap-2">
+            <div class="px-4 py-2 flex flex-col">
+                <span id="user-name" class="font-bold text-white text-sm">Admin System</span>
+                <span class="text-xs text-slate-500">Administrator</span>
+            </div>
+            <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                <span>🚪</span> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow flex flex-col min-h-screen">
+        <!-- Top Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Vendor Management</h2>
+            <div class="flex items-center gap-4">
+                <label for="status-filter" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Filter Status</label>
+                <select id="status-filter" onchange="fetchVendors()" class="px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm bg-white font-medium text-slate-700">
+                    <option value="1">Pending Requests</option>
+                    <option value="2">Approved Vendors</option>
+                    <option value="3">Rejected Vendors</option>
+                    <option value="0">All Vendors</option>
+                </select>
+                <div id="loading-spinner" class="spinner hidden"></div>
+            </div>
+        </header>
+
+        <main class="flex-grow p-8">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <th class="px-6 py-4">Name</th>
+                            <th class="px-6 py-4">Email</th>
+                            <th class="px-6 py-4">Phone</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vendor-table-body" class="divide-y divide-slate-100 text-sm font-medium text-slate-700">
+                        <!-- Vendors dynamic loading -->
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-slate-400">Loading vendors...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- App JS -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        if (guardPage([ROLE_ADMIN])) {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-name').innerText = user.name;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                fetchVendors();
+            });
+        }
+
+        async function fetchVendors() {
+            const status = document.getElementById('status-filter').value;
+            const spinner = document.getElementById('loading-spinner');
+            const tbody = document.getElementById('vendor-table-body');
+            
+            spinner.classList.remove('hidden');
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400">Loading vendors...</td></tr>`;
+
+            try {
+                let endpoint = '/api/admin/vendor/list';
+                if (status !== "0") {
+                    endpoint += `?status=${status}`;
+                }
+
+                const res = await fetchApi(endpoint);
+                if (res && res.responseCode === 200) {
+                    tbody.innerHTML = '';
+                    const vendors = res.responseData;
+
+                    if (vendors.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 font-bold">No vendors found.</td></tr>`;
+                        return;
+                    }
+
+                    vendors.forEach(v => {
+                        let statusBadge = '';
+                        let actions = '';
+
+                        if (v.verify_status === 1) {
+                            statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold">Pending</span>`;
+                            actions = `
+                                <button onclick="updateVendorStatus('${v.vendor_id}', 2)" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-green-600 hover:bg-green-700 shadow-md shadow-green-500/10 hover:shadow-green-500/20 active:scale-95 transition-all">Approve</button>
+                                <button onclick="updateVendorStatus('${v.vendor_id}', 3)" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-md shadow-red-500/10 hover:shadow-red-500/20 active:scale-95 transition-all">Reject</button>
+                            `;
+                        } else if (v.verify_status === 2) {
+                            statusBadge = `<span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-bold">Approved</span>`;
+                            actions = `<span class="text-xs text-slate-400">Approved</span>`;
+                        } else {
+                            statusBadge = `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-bold">Rejected</span>`;
+                            actions = `<span class="text-xs text-slate-400">Rejected</span>`;
+                        }
+
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-slate-50 transition-colors';
+                        tr.innerHTML = `
+                            <td class="px-6 py-4 font-bold text-slate-900">${v.name}</td>
+                            <td class="px-6 py-4">${v.email}</td>
+                            <td class="px-6 py-4">${v.phone}</td>
+                            <td class="px-6 py-4">${statusBadge}</td>
+                            <td class="px-6 py-4 text-right flex items-center justify-end gap-2">${actions}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function updateVendorStatus(vendorId, verifyStatus) {
+            if (!confirm(`Are you sure you want to ${verifyStatus === 2 ? 'approve' : 'reject'} this vendor?`)) {
+                return;
+            }
+
+            try {
+                const res = await fetchApi(`/api/admin/accept/vendor?vendor_id=${vendorId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ verify_status: verifyStatus })
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast(`Vendor successfully ${verifyStatus === 2 ? 'approved' : 'rejected'}!`);
+                    fetchVendors();
+                } else {
+                    showToast(res ? res.responseMessage : 'Update failed.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PropManager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 flex min-h-screen text-slate-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-400 flex flex-col justify-between border-r border-slate-800">
+        <div class="flex flex-col">
+            <div class="h-16 flex items-center px-6 gap-2 border-b border-slate-800">
+                <span class="text-xl">🏡</span>
+                <span class="font-extrabold text-white text-lg tracking-tight">PropManager</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1 p-4">
+                <a href="admin-dashboard.html" class="nav-link-active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="admin-vendors.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>👥</span> Vendor Requests
+                </a>
+                <a href="admin-categories.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>🏷️</span> Categories
+                </a>
+                <a href="admin-properties.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>🏢</span> Properties
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 flex flex-col gap-2">
+            <div class="px-4 py-2 flex flex-col">
+                <span id="user-name" class="font-bold text-white text-sm">Admin System</span>
+                <span class="text-xs text-slate-500">Administrator</span>
+            </div>
+            <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                <span>🚪</span> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow flex flex-col min-h-screen overflow-x-hidden">
+        <!-- Top Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Dashboard Overview</h2>
+            <div id="loading-spinner" class="spinner hidden"></div>
+        </header>
+
+        <main class="flex-grow p-8 flex flex-col gap-8">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Seekers -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Seekers</span>
+                        <span id="stat-seekers" class="text-3xl font-extrabold text-slate-900">0</span>
+                    </div>
+                    <span class="text-3xl bg-blue-50 p-4 rounded-2xl text-blue-600">👤</span>
+                </div>
+                <!-- Vendors -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Vendors</span>
+                        <span id="stat-vendors" class="text-3xl font-extrabold text-slate-900">0</span>
+                    </div>
+                    <span class="text-3xl bg-purple-50 p-4 rounded-2xl text-purple-600">👥</span>
+                </div>
+                <!-- Properties -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Properties</span>
+                        <span id="stat-properties" class="text-3xl font-extrabold text-slate-900">0</span>
+                    </div>
+                    <span class="text-3xl bg-emerald-50 p-4 rounded-2xl text-emerald-600">🏢</span>
+                </div>
+            </div>
+
+            <!-- Booking Chart -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="font-extrabold text-lg text-slate-800 mb-6 flex items-center gap-2">
+                    <span>📈</span> Platform Booking Volume
+                </h3>
+                <div id="chart"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- App JS -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Guard page access
+        if (guardPage([ROLE_ADMIN])) {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-name').innerText = user.name;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                fetchStats();
+                fetchChartData();
+            });
+        }
+
+        async function fetchStats() {
+            const spinner = document.getElementById('loading-spinner');
+            spinner.classList.remove('hidden');
+            try {
+                const res = await fetchApi('/api/project/analysis/count');
+                if (res && res.responseCode === 200) {
+                    document.getElementById('stat-seekers').innerText = res.responseData.totalUser || 0;
+                    document.getElementById('stat-vendors').innerText = res.responseData.totalVendor || 0;
+                    document.getElementById('stat-properties').innerText = res.responseData.totalProperty || 0;
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function fetchChartData() {
+            try {
+                const res = await fetchApi('/api/project/analysis');
+                if (res && res.responseCode === 200) {
+                    renderChart(res.responseData.bookingsData);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderChart(data) {
+            const options = {
+                series: [{
+                    name: 'Bookings Placed',
+                    data: data || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                }],
+                chart: {
+                    height: 350,
+                    type: 'line',
+                    toolbar: { show: false },
+                    zoom: { enabled: false }
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                colors: ['#3b82f6'],
+                xaxis: {
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                },
+                grid: {
+                    borderColor: '#f1f5f9',
+                }
+            };
+
+            const chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        }
+    </script>
+</body>
+</html>

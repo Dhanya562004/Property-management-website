@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - PropManager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 flex min-h-screen text-slate-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-400 flex flex-col justify-between border-r border-slate-800">
+        <div class="flex flex-col">
+            <div class="h-16 flex items-center px-6 gap-2 border-b border-slate-800">
+                <span class="text-xl">🏡</span>
+                <span class="font-extrabold text-white text-lg tracking-tight">PropManager</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1 p-4">
+                <a href="vendor-dashboard.html" class="nav-link-active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all">
+                    <span>🏢</span> My Properties
+                </a>
+                <a href="vendor-bookings.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>📅</span> Inquiries / Bookings
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 flex flex-col gap-2">
+            <div class="px-4 py-2 flex flex-col">
+                <span id="user-name" class="font-bold text-white text-sm">Landlord</span>
+                <span class="text-xs text-slate-500">Property Vendor</span>
+            </div>
+            <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                <span>🚪</span> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow flex flex-col min-h-screen">
+        <!-- Top Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">My Listings</h2>
+            <div class="flex items-center gap-4">
+                <a href="vendor-add-property.html" class="gradient-primary text-xs font-bold text-white px-4 py-2.5 rounded-xl shadow-md shadow-blue-500/10 hover:shadow-blue-500/20 active:scale-95 transition-all">
+                    + Add Property
+                </a>
+                <div id="loading-spinner" class="spinner hidden"></div>
+            </div>
+        </header>
+
+        <main class="flex-grow p-8">
+            <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loaded dynamically -->
+                <div class="col-span-full py-12 text-center text-slate-400 font-bold">Loading your properties...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Status & Comments Modal -->
+    <div id="status-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 shadow-2xl p-8 flex flex-col gap-6 transform scale-95 transition-all">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                <h3 class="text-xl font-extrabold text-slate-950">Manage Listing</h3>
+                <button onclick="closeStatusModal()" class="text-slate-400 hover:text-slate-600 font-extrabold text-xl">×</button>
+            </div>
+
+            <!-- Change Status Form -->
+            <div class="flex flex-col gap-2">
+                <label for="status-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Property Listing Status</label>
+                <div class="flex gap-3">
+                    <select id="status-select" class="flex-grow px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 text-sm bg-white font-medium text-slate-700">
+                        <option value="1">Ready to Buy</option>
+                        <option value="2">Upcoming</option>
+                        <option value="3">Sold</option>
+                        <option value="4">Rented</option>
+                    </select>
+                    <button onclick="updatePropertyStatus()" class="gradient-primary text-sm font-bold text-white px-5 py-2.5 rounded-xl">
+                        Update Status
+                    </button>
+                </div>
+            </div>
+
+            <!-- Q&A Section -->
+            <div class="border-t border-slate-100 pt-6 flex flex-col gap-4">
+                <h4 class="font-extrabold text-lg text-slate-800">Admin Remarks &amp; Replies</h4>
+                <div id="comments-list" class="flex flex-col gap-3 max-h-40 overflow-y-auto pr-2">
+                    <!-- Dynamic comments list -->
+                </div>
+
+                <!-- Add Reply Form (Opens conditionally) -->
+                <div id="reply-form-container" class="hidden flex flex-col gap-2 border-t border-slate-100 pt-4">
+                    <input type="hidden" id="reply-comment-id">
+                    <label for="reply-text-input" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Reply to Admin Remark</label>
+                    <div class="flex gap-3">
+                        <input type="text" id="reply-text-input" placeholder="Type your reply to this remark..." class="flex-grow px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                        <button onclick="submitReply()" class="gradient-primary text-sm font-bold text-white px-5 py-2.5 rounded-xl">Reply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App JS -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        let activePropertyId = '';
+
+        if (guardPage([ROLE_VENDOR])) {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-name').innerText = user.name;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                fetchMyProperties();
+            });
+        }
+
+        async function fetchMyProperties() {
+            const grid = document.getElementById('properties-grid');
+            const spinner = document.getElementById('loading-spinner');
+            
+            spinner.classList.remove('hidden');
+            grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 font-bold">Loading your properties...</div>';
+
+            try {
+                const res = await fetchApi('/api/properties/manage/list');
+                if (res && res.responseCode === 200) {
+                    grid.innerHTML = '';
+                    const properties = res.responseData;
+
+                    if (properties.length === 0) {
+                        grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 font-bold">You have not listed any properties yet.</div>';
+                        return;
+                    }
+
+                    properties.forEach(p => {
+                        let statusText = '';
+                        let statusColor = '';
+
+                        if (p.prop_status === 1) { statusText = 'Ready to Buy'; statusColor = 'bg-green-100 text-green-700'; }
+                        else if (p.prop_status === 2) { statusText = 'Upcoming'; statusColor = 'bg-amber-100 text-amber-700'; }
+                        else if (p.prop_status === 3) { statusText = 'Sold'; statusColor = 'bg-slate-100 text-slate-700'; }
+                        else if (p.prop_status === 4) { statusText = 'Rented'; statusColor = 'bg-blue-100 text-blue-700'; }
+
+                        const card = document.createElement('div');
+                        card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover-scale';
+                        card.innerHTML = `
+                            <div class="h-44 bg-slate-100 relative overflow-hidden">
+                                <img src="${p.images[0] || 'https://via.placeholder.com/400x250?text=Property'}" alt="${p.property_name}" class="w-full h-full object-cover">
+                                <span class="absolute top-3 right-3 ${statusColor} px-2.5 py-1 rounded-lg text-xs font-extrabold shadow-sm">${statusText}</span>
+                            </div>
+                            <div class="p-6 flex flex-col gap-3">
+                                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">${p.categoryInfo?.name || 'Category'} &bull; ${p.subcategoryInfo?.name || 'Subcategory'}</span>
+                                <h3 class="font-extrabold text-xl text-slate-900">${p.property_name}</h3>
+                                <p class="text-slate-500 text-sm font-semibold">${p.locality}, ${p.city}</p>
+                                <div class="flex items-center justify-between text-xs text-slate-400 font-bold border-t border-slate-100 pt-3 mt-1">
+                                    <span>Price: ${formatCurrency(p.price)}</span>
+                                    <span>Age: ${p.age}</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 mt-2">
+                                    <button onclick="openStatusModal('${p._id}', ${p.prop_status})" class="bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs py-2 rounded-xl transition-all border border-slate-200">
+                                        Manage Listing
+                                    </button>
+                                    <button onclick="deleteProperty('${p._id}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs py-2 rounded-xl transition-all border border-red-100">
+                                        Remove Listing
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function deleteProperty(id) {
+            if (!confirm('Are you sure you want to permanently delete this property listing?')) {
+                return;
+            }
+
+            try {
+                const res = await fetchApi(`/api/properties/manage/delete/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast('Property deleted successfully!');
+                    fetchMyProperties();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function openStatusModal(id, currentStatus) {
+            activePropertyId = id;
+            document.getElementById('status-select').value = currentStatus;
+            document.getElementById('reply-form-container').classList.add('hidden');
+            fetchComments(id);
+            document.getElementById('status-modal').classList.remove('hidden');
+        }
+
+        function closeStatusModal() {
+            document.getElementById('status-modal').classList.add('hidden');
+        }
+
+        async function updatePropertyStatus() {
+            const prop_status = document.getElementById('status-select').value;
+            try {
+                const res = await fetchApi(`/api/properties/manage/edit/status/${activePropertyId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ prop_status })
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast('Property status updated successfully!');
+                    closeStatusModal();
+                    fetchMyProperties();
+                } else {
+                    showToast(res ? res.responseMessage : 'Update failed', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchComments(propId) {
+            const list = document.getElementById('comments-list');
+            list.innerHTML = '<p class="text-xs text-slate-400 italic">Loading remarks...</p>';
+
+            try {
+                const res = await fetchApi(`/api/comments/manage/list?property_id=${propId}`);
+                if (res && res.responseCode === 200) {
+                    list.innerHTML = '';
+                    const comments = res.responseData;
+
+                    if (comments.length === 0) {
+                        list.innerHTML = '<p class="text-xs text-slate-400 italic">No admin remarks posted.</p>';
+                        return;
+                    }
+
+                    comments.forEach(c => {
+                        const div = document.createElement('div');
+                        div.className = 'flex flex-col gap-1.5 p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm';
+                        
+                        let replyHtml = '';
+                        if (c.replies && c.replies.length > 0) {
+                            replyHtml = c.replies.map(r => `
+                                <div class="ml-4 mt-2 pl-3 border-l-2 border-slate-300 text-xs text-slate-600">
+                                    <span class="font-bold text-slate-800">Your Reply:</span> ${r.replycmt}
+                                </div>
+                            `).join('');
+                        } else {
+                            replyHtml = `
+                                <button onclick="openReplyForm('${c._id}')" class="mt-2 text-xs font-bold text-blue-600 hover:underline w-fit">
+                                    + Reply to this remark
+                                </button>
+                            `;
+                        }
+
+                        div.innerHTML = `
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-xs font-bold text-red-600">Admin Remark:</span>
+                                <span class="font-medium text-slate-800">${c.comment}</span>
+                            </div>
+                            ${replyHtml}
+                        `;
+                        list.appendChild(div);
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function openReplyForm(commentId) {
+            document.getElementById('reply-comment-id').value = commentId;
+            document.getElementById('reply-text-input').value = '';
+            document.getElementById('reply-form-container').classList.remove('hidden');
+        }
+
+        async function submitReply() {
+            const comment_id = document.getElementById('reply-comment-id').value;
+            const reply = document.getElementById('reply-text-input').value.trim();
+
+            if (!reply) return;
+
+            try {
+                const res = await fetchApi('/api/comments/manage/reply', {
+                    method: 'POST',
+                    body: JSON.stringify({ reply, comment_id })
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast('Reply submitted successfully!');
+                    document.getElementById('reply-form-container').classList.add('hidden');
+                    fetchComments(activePropertyId);
+                } else {
+                    showToast(res ? res.responseMessage : 'Failed to submit reply.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

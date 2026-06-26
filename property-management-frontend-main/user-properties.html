@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Properties - PropManager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 flex flex-col min-h-screen text-slate-800">
+
+    <!-- Navbar -->
+    <header class="glass-panel sticky top-0 z-40 w-full border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="user-dashboard.html" class="flex items-center gap-2">
+                <span class="text-2xl">🏡</span>
+                <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">PropManager</span>
+            </a>
+            
+            <nav class="hidden md:flex items-center gap-6 font-bold text-slate-500 text-sm">
+                <a href="user-dashboard.html" class="hover:text-blue-600 px-3 py-2 transition-colors">Home</a>
+                <a href="user-categories.html" class="hover:text-blue-600 px-3 py-2 transition-colors">Categories</a>
+                <a href="user-properties.html" class="text-blue-600 px-3 py-2 rounded-xl bg-blue-50">Find Homes</a>
+                <a href="user-wishlist.html" class="hover:text-blue-600 px-3 py-2 transition-colors">Wishlist</a>
+                <a href="user-bookings.html" class="hover:text-blue-600 px-3 py-2 transition-colors">My Bookings</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button onclick="logout()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/50 px-4 py-2.5 rounded-xl transition-all">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col gap-8">
+        <!-- Search Controls -->
+        <section class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl flex flex-col gap-6">
+            <h3 class="font-extrabold text-lg text-slate-900">Search and Filter Properties</h3>
+            
+            <form id="search-form" class="grid md:grid-cols-4 gap-4 items-end">
+                <div class="flex flex-col gap-1.5">
+                    <label for="search-name" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Property Name</label>
+                    <input type="text" id="search-name" placeholder="e.g. Apartment" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="search-city" class="text-xs font-bold text-slate-500 uppercase tracking-wider">City</label>
+                    <input type="text" id="search-city" placeholder="e.g. Bangalore" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="search-locality" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Locality</label>
+                    <input type="text" id="search-locality" placeholder="e.g. Indiranagar" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+                </div>
+                <button type="submit" class="gradient-primary text-sm font-bold text-white py-3 rounded-xl shadow-md shadow-blue-500/10 hover:scale-[1.01] active:scale-95 transition-all">
+                    Search Listings
+                </button>
+            </form>
+        </section>
+
+        <!-- Properties Results Grid -->
+        <section class="flex flex-col gap-6">
+            <div class="flex items-center justify-between">
+                <h2 id="results-heading" class="text-2xl font-extrabold text-slate-900 tracking-tight">Active Listings</h2>
+                <div id="loading-spinner" class="spinner hidden"></div>
+            </div>
+            
+            <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamically loaded -->
+                <div class="col-span-full py-12 text-center text-slate-400 font-bold">Loading listings...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-400 py-8 border-t border-slate-800 text-center text-xs mt-auto">
+        <p>&copy; 2026 PropManager. All rights reserved.</p>
+    </footer>
+
+    <!-- App JS -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        if (guardPage([ROLE_CUSTOMER])) {
+            document.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const categoryId = urlParams.get('category_id');
+                const subcategoryId = urlParams.get('subcategory_id');
+
+                if (categoryId && subcategoryId) {
+                    fetchByCategory(categoryId, subcategoryId);
+                } else {
+                    fetchFilteredProperties();
+                }
+            });
+        }
+
+        document.getElementById('search-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            fetchFilteredProperties();
+        });
+
+        async function fetchFilteredProperties() {
+            const propertyName = document.getElementById('search-name').value;
+            const city = document.getElementById('search-city').value;
+            const locality = document.getElementById('search-locality').value;
+            
+            const grid = document.getElementById('properties-grid');
+            const spinner = document.getElementById('loading-spinner');
+            
+            spinner.classList.remove('hidden');
+            grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 font-bold">Loading listings...</div>';
+
+            try {
+                const endpoint = `/api/properties/seach/filter?property_name=${encodeURIComponent(propertyName)}&city=${encodeURIComponent(city)}&locality=${encodeURIComponent(locality)}`;
+                const res = await fetchApi(endpoint);
+
+                if (res && res.responseCode === 200) {
+                    renderProperties(res.responseData);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        async function fetchByCategory(catId, subcatId) {
+            const grid = document.getElementById('properties-grid');
+            const spinner = document.getElementById('loading-spinner');
+            
+            spinner.classList.remove('hidden');
+            grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 font-bold">Loading listings...</div>';
+
+            try {
+                const endpoint = `/api/properties/list/bycat?cattegory_id=${catId}&subcat_id=${subcatId}`;
+                const res = await fetchApi(endpoint);
+
+                if (res && res.responseCode === 200) {
+                    document.getElementById('results-heading').innerText = 'Subcategory Listings';
+                    renderProperties(res.responseData);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        function renderProperties(list) {
+            const grid = document.getElementById('properties-grid');
+            grid.innerHTML = '';
+
+            if (list.length === 0) {
+                grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 font-bold">No properties matched your criteria.</div>';
+                return;
+            }
+
+            list.forEach(p => {
+                let statusText = '';
+                let statusColor = '';
+
+                if (p.prop_status === 1) { statusText = 'Ready to Buy'; statusColor = 'bg-green-100 text-green-700'; }
+                else if (p.prop_status === 2) { statusText = 'Upcoming'; statusColor = 'bg-amber-100 text-amber-700'; }
+                else if (p.prop_status === 3) { statusText = 'Sold'; statusColor = 'bg-slate-100 text-slate-700'; }
+                else if (p.prop_status === 4) { statusText = 'Rented'; statusColor = 'bg-blue-100 text-blue-700'; }
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover-scale relative';
+                card.innerHTML = `
+                    <div class="h-44 bg-slate-100 relative overflow-hidden">
+                        <img src="${p.images[0] || 'https://via.placeholder.com/400x255?text=Property'}" alt="${p.property_name}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 right-3 ${statusColor} px-2.5 py-1 rounded-lg text-xs font-extrabold shadow-sm">${statusText}</span>
+                    </div>
+                    <div class="p-6 flex flex-col gap-3">
+                        <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">${p.categoryInfo?.name || 'Category'} &bull; ${p.subcategoryInfo?.name || 'Subcategory'}</span>
+                        <h3 class="font-extrabold text-xl text-slate-900">${p.property_name}</h3>
+                        <p class="text-slate-500 text-sm font-semibold">${p.locality}, ${p.city}</p>
+                        
+                        <div class="flex items-center justify-between text-xs text-slate-400 font-bold border-t border-slate-100 pt-3 mt-1">
+                            <span>Listed by: ${p.listedby?.name || 'Vendor'}</span>
+                            <span class="text-slate-900 text-sm font-extrabold">${formatCurrency(p.price)}</span>
+                        </div>
+                        <a href="user-property-detail.html?id=${p._id}" class="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs py-2.5 rounded-xl transition-all border border-slate-200 mt-2 text-center block">
+                            View Full Details
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

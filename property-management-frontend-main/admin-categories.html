@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories - PropManager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 flex min-h-screen text-slate-800">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-400 flex flex-col justify-between border-r border-slate-800">
+        <div class="flex flex-col">
+            <div class="h-16 flex items-center px-6 gap-2 border-b border-slate-800">
+                <span class="text-xl">🏡</span>
+                <span class="font-extrabold text-white text-lg tracking-tight">PropManager</span>
+            </div>
+            
+            <nav class="flex flex-col gap-1 p-4">
+                <a href="admin-dashboard.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="admin-vendors.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>👥</span> Vendor Requests
+                </a>
+                <a href="admin-categories.html" class="nav-link-active flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all">
+                    <span>🏷️</span> Categories
+                </a>
+                <a href="admin-properties.html" class="hover:bg-slate-800 hover:text-white flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all">
+                    <span>🏢</span> Properties
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 flex flex-col gap-2">
+            <div class="px-4 py-2 flex flex-col">
+                <span id="user-name" class="font-bold text-white text-sm">Admin System</span>
+                <span class="text-xs text-slate-500">Administrator</span>
+            </div>
+            <button onclick="logout()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm py-2.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                <span>🚪</span> Sign Out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow flex flex-col min-h-screen">
+        <!-- Top Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Category Management</h2>
+            <div class="flex items-center gap-4">
+                <button onclick="openCategoryModal()" class="gradient-primary text-xs font-bold text-white px-4 py-2.5 rounded-xl shadow-md shadow-blue-500/10 hover:shadow-blue-500/20 active:scale-95 transition-all">
+                    + Add Category
+                </button>
+                <div id="loading-spinner" class="spinner hidden"></div>
+            </div>
+        </header>
+
+        <main class="flex-grow p-8">
+            <!-- Categories Grid -->
+            <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Loaded dynamically -->
+                <div class="col-span-full py-12 text-center text-slate-400 font-bold">Loading Categories...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Category Modal -->
+    <div id="category-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full border border-slate-200 shadow-2xl flex flex-col gap-6 transform scale-95 transition-all">
+            <h3 id="category-modal-title" class="text-xl font-extrabold text-slate-950">Add Category</h3>
+            <input type="hidden" id="category-modal-id">
+            <div class="flex flex-col gap-2">
+                <label for="category-name-input" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Category Name</label>
+                <input type="text" id="category-name-input" placeholder="e.g. Commercial" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+            </div>
+            <div class="flex items-center justify-end gap-3">
+                <button onclick="closeCategoryModal()" class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all">Cancel</button>
+                <button onclick="saveCategory()" class="gradient-primary text-sm font-bold text-white px-5 py-2 rounded-xl">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subcategory Modal -->
+    <div id="subcategory-modal" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full border border-slate-200 shadow-2xl flex flex-col gap-6 transform scale-95 transition-all">
+            <h3 class="text-xl font-extrabold text-slate-950">Add Subcategory</h3>
+            <input type="hidden" id="subcategory-modal-cat-id">
+            <div class="flex flex-col gap-2">
+                <label for="subcategory-name-input" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Subcategory Name</label>
+                <input type="text" id="subcategory-name-input" placeholder="e.g. Office Space" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 text-sm">
+            </div>
+            <div class="flex items-center justify-end gap-3">
+                <button onclick="closeSubCategoryModal()" class="px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all">Cancel</button>
+                <button onclick="saveSubCategory()" class="gradient-primary text-sm font-bold text-white px-5 py-2 rounded-xl">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App JS -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        if (guardPage([ROLE_ADMIN])) {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('user-name').innerText = user.name;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                fetchCategories();
+            });
+        }
+
+        async function fetchCategories() {
+            const grid = document.getElementById('categories-grid');
+            const spinner = document.getElementById('loading-spinner');
+            
+            spinner.classList.remove('hidden');
+            grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 font-bold">Loading Categories...</div>';
+
+            try {
+                const res = await fetchApi('/api/category/manage/list');
+                if (res && res.responseCode === 200) {
+                    grid.innerHTML = '';
+                    const categories = res.responseData;
+
+                    if (categories.length === 0) {
+                        grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-400 font-bold">No categories found. Add some to get started.</div>';
+                        return;
+                    }
+
+                    for (let c of categories) {
+                        const card = document.createElement('div');
+                        card.className = 'bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4';
+                        
+                        // Fetch subcategories for this category
+                        let subcatHtml = '<p class="text-xs text-slate-400 italic">No subcategories found.</p>';
+                        try {
+                            const subres = await fetchApi(`/api/subcategory/manage/list?category_id=${c.id}`);
+                            if (subres && subres.responseCode === 200 && subres.responseData.length > 0) {
+                                const subcategories = subres.responseData[0].subCategories;
+                                if (subcategories.length > 0) {
+                                    subcatHtml = `
+                                        <div class="flex flex-wrap gap-2 mt-2">
+                                            ${subcategories.map(sc => `<span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-xl text-xs font-semibold border border-blue-100 flex items-center gap-1.5">${sc.name} <button onclick="deleteSubcat('${sc._id}')" class="text-blue-400 hover:text-red-500 font-extrabold text-sm transition-colors">×</button></span>`).join('')}
+                                        </div>
+                                    `;
+                                }
+                            }
+                        } catch (err) {
+                            console.error(err);
+                        }
+
+                        card.innerHTML = `
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <h3 class="font-extrabold text-lg text-slate-900">${c.name}</h3>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="openCategoryModal('${c.id}', '${c.name}')" class="text-xs font-bold text-blue-600 hover:underline">Edit</button>
+                                    <span class="text-slate-300">|</span>
+                                    <button onclick="deleteCategory('${c.id}')" class="text-xs font-bold text-red-600 hover:underline">Delete</button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Subcategories</span>
+                                    <button onclick="openSubCategoryModal('${c.id}')" class="text-xs font-bold text-blue-600 hover:underline">+ Add Sub</button>
+                                </div>
+                                ${subcatHtml}
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+
+        // Category Modal Actions
+        function openCategoryModal(id = '', name = '') {
+            document.getElementById('category-modal-id').value = id;
+            document.getElementById('category-name-input').value = name;
+            document.getElementById('category-modal-title').innerText = id ? 'Edit Category' : 'Add Category';
+            const modal = document.getElementById('category-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('category-modal').classList.add('hidden');
+        }
+
+        async function saveCategory() {
+            const id = document.getElementById('category-modal-id').value;
+            const cat_name = document.getElementById('category-name-input').value.trim();
+
+            if (!cat_name) {
+                showToast('Category name is required.', 'error');
+                return;
+            }
+
+            try {
+                let res;
+                if (id) {
+                    // Update
+                    res = await fetchApi(`/api/category/manage/update/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ cat_name })
+                    });
+                } else {
+                    // Create
+                    res = await fetchApi('/api/category/manage/add', {
+                        method: 'POST',
+                        body: JSON.stringify({ cat_name })
+                    });
+                }
+
+                if (res && res.responseCode === 200) {
+                    showToast(id ? 'Category updated!' : 'Category added!');
+                    closeCategoryModal();
+                    fetchCategories();
+                } else {
+                    showToast(res ? res.responseMessage : 'Operation failed', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Are you sure you want to delete this category? It will also archive subcategories.')) {
+                return;
+            }
+
+            try {
+                const res = await fetchApi(`/api/category/manage/delete/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast('Category deleted successfully.');
+                    fetchCategories();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Subcategory Modal Actions
+        function openSubCategoryModal(catId) {
+            document.getElementById('subcategory-modal-cat-id').value = catId;
+            document.getElementById('subcategory-name-input').value = '';
+            document.getElementById('subcategory-modal').classList.remove('hidden');
+        }
+
+        function closeSubCategoryModal() {
+            document.getElementById('subcategory-modal').classList.add('hidden');
+        }
+
+        async function saveSubCategory() {
+            const category_id = document.getElementById('subcategory-modal-cat-id').value;
+            const sub_cat_name = document.getElementById('subcategory-name-input').value.trim();
+
+            if (!sub_cat_name) {
+                showToast('Subcategory name is required.', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetchApi('/api/subcategory/manage/add', {
+                    method: 'POST',
+                    body: JSON.stringify({ sub_cat_name, category_id })
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast('Subcategory added!');
+                    closeSubCategoryModal();
+                    fetchCategories();
+                } else {
+                    showToast(res ? res.responseMessage : 'Failed to add subcategory.', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteSubcat(id) {
+            if (!confirm('Are you sure you want to delete this subcategory?')) {
+                return;
+            }
+
+            try {
+                const res = await fetchApi(`/api/subcategory/manage/delete/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (res && res.responseCode === 200) {
+                    showToast('Subcategory deleted.');
+                    fetchCategories();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

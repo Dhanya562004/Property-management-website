@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seeker Registration - PropManager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-xl p-8 flex flex-col gap-6 relative overflow-hidden">
+        
+        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl transform translate-x-12 -translate-y-12"></div>
+        
+        <div class="flex flex-col gap-2 relative z-10">
+            <a href="index.html" class="flex items-center gap-2 mb-2 w-fit">
+                <span class="text-xl">🏡</span>
+                <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">PropManager</span>
+            </a>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Create Seeker Account</h2>
+            <p class="text-slate-500 text-sm">Register as a Seeker/Customer to browse and book properties</p>
+        </div>
+
+        <form id="signup-form" class="flex flex-col gap-4 relative z-10">
+            <div class="flex flex-col gap-1.5">
+                <label for="name" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Full Name</label>
+                <input type="text" id="name" required placeholder="John Doe" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-sm">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="email" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Email Address</label>
+                    <input type="email" id="email" required placeholder="john@example.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-sm">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="phone" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Phone (with country code)</label>
+                    <input type="text" id="phone" required placeholder="+919876543210" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-sm">
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="password" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
+                    <input type="password" id="password" required placeholder="e.g. Pass@123" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-sm">
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label for="cnfrm_pwd" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Confirm Password</label>
+                    <input type="password" id="cnfrm_pwd" required placeholder="Confirm password" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-sm">
+                </div>
+            </div>
+
+            <button type="submit" class="gradient-primary text-sm font-bold text-white py-3.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 hover:scale-[1.01] active:scale-95 transition-all mt-2 flex items-center justify-center gap-2">
+                <span>Sign Up</span>
+                <span id="loader" class="hidden animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+            </button>
+        </form>
+
+        <div class="border-t border-slate-100 pt-6 text-center text-xs text-slate-500 relative z-10">
+            <p>Already have an account? <a href="login.html" class="font-bold text-blue-600 hover:underline">Sign In</a></p>
+        </div>
+    </div>
+
+    <!-- App JS -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const cnfrm_pwd = document.getElementById('cnfrm_pwd').value;
+            const loader = document.getElementById('loader');
+
+            if (password !== cnfrm_pwd) {
+                showToast('Passwords do not match.', 'error');
+                return;
+            }
+
+            loader.classList.remove('hidden');
+
+            try {
+                const res = await fetchApi('/api/account/signup', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        phone,
+                        password,
+                        cnfrm_pwd,
+                        role: '3' // 3 = Seeker/Customer
+                    })
+                });
+
+                if (res) {
+                    if (res.responseCode === 200) {
+                        showToast('Account registered successfully! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 1500);
+                    } else {
+                        showToast(res.responseMessage, 'error');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
